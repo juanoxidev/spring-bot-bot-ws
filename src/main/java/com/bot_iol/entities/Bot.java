@@ -8,6 +8,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Component;
 
 
@@ -25,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Bot {
 	
-	private WebDriver driver;
+	private ChromeDriver driver;
 	private List<Stock> stocks;
 	private boolean isRunning = false;
 	
@@ -39,8 +40,31 @@ public class Bot {
 	}
 	
 	private void inicializarBot() {
-        //System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
-        this.driver = new ChromeDriver();
+		try {
+        //System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
+        log.info(" ...  Driver: /usr/bin/chromedriver");
+        ChromeOptions options = new ChromeOptions();
+        
+        
+        
+        options.addArguments("--no-sandbox"); // Bypass OS security model, MUST BE THE VERY FIRST OPTION
+        options.addArguments("--headless");
+        options.setExperimentalOption("useAutomationExtension", false);
+        options.addArguments("start-maximized"); // open Browser in maximized mode
+        options.addArguments("disable-infobars"); // disabling infobars
+        options.addArguments("--disable-extensions"); // disabling extensions
+        options.addArguments("--disable-gpu"); // applicable to windows os only
+        options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
+        
+//        options.addArguments("--no-sandbox");
+//        options.addArguments("--headless");
+//        options.addArguments("--disable-dev-shm-usage");
+//        options.addArguments("--disable-gpu");
+        log.info(".... ChromeDriver iniciado correctamente");
+        this.driver = new ChromeDriver(options);
+		} catch (Exception e) {
+		log.error("Error al iniciar el ChromeDriver", e);
+		}
 	}
 	
     public void stop() {
@@ -65,10 +89,12 @@ public class Bot {
 	
 	
 	public void search() {
+	    log.info("... Iniciando navegador");
 		this.driver.get("https://iol.invertironline.com/mercado/cotizaciones/argentina/acciones/panel-general");
 		sleep(7);
 		scrollPage(3, 2000);
 	    try {
+	    log.info("... Recolectando la informacion");
 		List<WebElement> elementosHTML = driver.findElements(By.xpath("//*[@id=\"cotizaciones\"]/tbody/tr"));
 		this.getStocks(elementosHTML);
 	    } finally {
