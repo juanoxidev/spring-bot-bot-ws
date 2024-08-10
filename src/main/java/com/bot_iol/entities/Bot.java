@@ -41,7 +41,7 @@ public class Bot {
 	
 	private void inicializarBot() {
 		try {
-        //System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
         log.info(" ...  Driver: /usr/bin/chromedriver");
         ChromeOptions options = new ChromeOptions();
         
@@ -56,10 +56,7 @@ public class Bot {
         options.addArguments("--disable-gpu"); // applicable to windows os only
         options.addArguments("--disable-dev-shm-usage"); // overcome limited resource problems
         
-//        options.addArguments("--no-sandbox");
-//        options.addArguments("--headless");
-//        options.addArguments("--disable-dev-shm-usage");
-//        options.addArguments("--disable-gpu");
+
         log.info(".... ChromeDriver iniciado correctamente");
         this.driver = new ChromeDriver(options);
 		} catch (Exception e) {
@@ -109,11 +106,12 @@ public class Bot {
 		
 		for(WebElement s : elementos) {
 			Stock info = new Stock();
-			info.setTicker(s.findElement(By.xpath(".//td[1]/a/b")).getText());
+			
 			info.setPrice(s.findElement(By.xpath(".//td[2]")).getText());
-			info.setDescription(s.findElement(By.xpath(".//td[1]/a/span")).getText());
 			WebElement linkElement =s.findElement(By.xpath(".//td[1]/a"));
 			info.setUrl(linkElement.getAttribute("href"));
+			info.setDescription(linkElement.getAttribute("data-original-title"));
+			info.setTicker(linkElement.getAttribute("data-symbol"));
 			stocks.add(info);			
 		}
 		log.info("... Insertando las cotizaciones en el bot");
